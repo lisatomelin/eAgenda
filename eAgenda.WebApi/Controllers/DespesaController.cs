@@ -1,14 +1,4 @@
-﻿using AutoMapper;
-using eAgenda.Aplicacao.ModuloContato;
-using eAgenda.Dominio.ModuloContato;
-using eAgenda.Dominio;
-using eAgenda.Infra.Orm.ModuloContato;
-using eAgenda.Infra.Orm;
-using eAgenda.WebApi.ViewModels.ModuloContato;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using eAgenda.Infra.Orm.ModuloDespesa;
+﻿using Microsoft.AspNetCore.Mvc;
 using eAgenda.Dominio.ModuloDespesa;
 using eAgenda.Aplicacao.ModuloDespesa;
 using eAgenda.WebApi.ViewModels.ModuloDespesa;
@@ -22,51 +12,11 @@ namespace eAgenda.WebApi.Controllers
         private IMapper mapeador;
         private ServicoDespesa servicoDespesa;
 
-        public DespesaController()
+        public DespesaController(ServicoDespesa servicoDespesa, IMapper mapeador)
         {
-
-
-            IConfiguration configuracao = new ConfigurationBuilder()
-               .SetBasePath(Directory.GetCurrentDirectory())
-               .AddJsonFile("appsettings.json")
-               .Build();
-
-            var connectionString = configuracao.GetConnectionString("SqlServer");
-
-            var builder = new DbContextOptionsBuilder<eAgendaDbContext>();
-
-            builder.UseSqlServer(connectionString);
-
-            //builder.UseSqlServer(@"Data Source=(LOCALDB)\MSSQLLOCALDB;Initial Catalog=eAgendaOrm;Integrated Security=True"); Eviar essa string para appsettings.json
-
-            // Refatorado: var contextoPersistencia = new eAgendaDbContext(builder.Options);
-
-            IContextoPersistencia contextoPersistencia = new eAgendaDbContext(builder.Options);
-
-            // Refatorado: var repositorioContato = new RepositorioContatoOrm(contextoPersistencia);
-
-            IRepositorioDespesa repositorioDespesa = new RepositorioDespesaOrm(contextoPersistencia);
-
-            // Refatorado: var servicoContato = new ServicoContato(repositorioContato, contextoPersistencia);
-
-            servicoDespesa = new ServicoDespesa(repositorioDespesa, contextoPersistencia);
-
-            var automapperconfig = new MapperConfiguration(opt =>
-            {
-                opt.CreateMap<Despesa, ListarDespesaViewModel>()
-                .ForMember(destino => destino.Data, opt => opt.MapFrom(origem => origem.Data.ToShortDateString()));
-
-                opt.CreateMap<Despesa, VisualizarDespesaViewModel>()
-                .ForMember(destino => destino.Data, opt => opt.MapFrom(origem => origem.Data.ToShortDateString()));                    
-                
-                opt.CreateMap<InserirDespesaViewModel, Despesa>();
-                
-                opt.CreateMap<EditarDespesaViewModel, Despesa>();
-
-                opt.CreateMap<Categoria, ListarCategoriaViewModel>();
-            });
-
-            mapeador = automapperconfig.CreateMapper();
+            this.mapeador = mapeador;
+            this.servicoDespesa = servicoDespesa;            
+            
         }
 
         [HttpGet]

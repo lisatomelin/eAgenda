@@ -1,15 +1,5 @@
-﻿using AutoMapper;
-using eAgenda.Aplicacao.ModuloContato;
-using eAgenda.Dominio.ModuloContato;
-using eAgenda.Dominio;
-using eAgenda.Infra.Orm.ModuloContato;
-using eAgenda.Infra.Orm;
-using eAgenda.WebApi.ViewModels.ModuloContato;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using eAgenda.Aplicacao.ModuloTarefa;
-using eAgenda.Infra.Orm.ModuloTarefa;
 using eAgenda.Dominio.ModuloTarefa;
 using eAgenda.WebApi.ViewModels.ModuloTarefa;
 
@@ -22,45 +12,11 @@ namespace eAgenda.WebApi.Controllers
         public ServicoTarefa servicoTarefa;
 
         public IMapper mapeador;
-        public TarefaController()
+        public TarefaController(ServicoTarefa servicoTarefa, IMapper mapeador)
         {
-            IConfiguration configuracao = new ConfigurationBuilder()
-               .SetBasePath(Directory.GetCurrentDirectory())
-               .AddJsonFile("appsettings.json")
-               .Build();
-
-            var connectionString = configuracao.GetConnectionString("SqlServer");
-
-            var builder = new DbContextOptionsBuilder<eAgendaDbContext>();
-
-            builder.UseSqlServer(connectionString);
-
-            //builder.UseSqlServer(@"Data Source=(LOCALDB)\MSSQLLOCALDB;Initial Catalog=eAgendaOrm;Integrated Security=True"); Eviar essa string para appsettings.json
-
-            // Refatorado: var contextoPersistencia = new eAgendaDbContext(builder.Options);
-
-            IContextoPersistencia contextoPersistencia = new eAgendaDbContext(builder.Options);
-
-            // Refatorado: var repositorioContato = new RepositorioContatoOrm(contextoPersistencia);
-
-            IRepositorioTarefa repositorioTarefa = new RepositorioTarefaOrm(contextoPersistencia);
-
-            // Refatorado: var servicoContato = new ServicoContato(repositorioContato, contextoPersistencia);
-
-            servicoTarefa = new ServicoTarefa(repositorioTarefa, contextoPersistencia);
-
-            var automapperconfig = new MapperConfiguration(opt =>
-            {
-                opt.CreateMap<Tarefa, ListarTarefaViewModel>()
-                .ForMember(destino => destino.DataCriacao, opt => opt.MapFrom(origem => origem.DataCriacao.ToShortDateString()));
-
-                opt.CreateMap<Tarefa, VisualizarTarefaViewModel>()
-                .ForMember(destino => destino.DataCriacao, opt => opt.MapFrom(origem => origem.DataCriacao.ToShortDateString()));
-               
-
-            });
-
-            mapeador = automapperconfig.CreateMapper();
+            this.mapeador = mapeador;
+            this.servicoTarefa = servicoTarefa;           
+            
         }
 
 

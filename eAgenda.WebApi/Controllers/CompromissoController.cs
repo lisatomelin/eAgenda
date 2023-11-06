@@ -1,18 +1,7 @@
-﻿using eAgenda.Dominio.ModuloContato;
-using eAgenda.Dominio;
-using eAgenda.Infra.Orm.ModuloContato;
-using eAgenda.Infra.Orm;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using eAgenda.Aplicacao.ModuloContato;
+﻿using Microsoft.AspNetCore.Mvc;
 using eAgenda.Aplicacao.ModuloCompromisso;
 using eAgenda.Dominio.ModuloCompromisso;
-using eAgenda.WebApi.ViewModels.ModuloContato;
 using eAgenda.WebApi.ViewModels.ModuloDespesa;
-using eAgenda.Infra.Orm.ModuloCompromisso;
-using Microsoft.Win32;
-using AutoMapper;
 
 namespace eAgenda.WebApi.Controllers
 {
@@ -24,52 +13,12 @@ namespace eAgenda.WebApi.Controllers
         private ServicoCompromisso servicoCompromisso;
         private IMapper mapeador;
 
-        public CompromissoController() 
+        public CompromissoController(ServicoCompromisso servicoCompromisso, IMapper mapeador) 
         {
 
-
-            IConfiguration configuracao = new ConfigurationBuilder()
-               .SetBasePath(Directory.GetCurrentDirectory())
-               .AddJsonFile("appsettings.json")
-               .Build();
-
-            var connectionString = configuracao.GetConnectionString("SqlServer");
-
-            var builder = new DbContextOptionsBuilder<eAgendaDbContext>();
-
-            builder.UseSqlServer(connectionString);
-
-            //builder.UseSqlServer(@"Data Source=(LOCALDB)\MSSQLLOCALDB;Initial Catalog=eAgendaOrm;Integrated Security=True"); Eviar essa string para appsettings.json
-
-            // Refatorado: var contextoPersistencia = new eAgendaDbContext(builder.Options);
-
-            IContextoPersistencia contextoPersistencia = new eAgendaDbContext(builder.Options);
-
-            // Refatorado: var repositorioContato = new RepositorioContatoOrm(contextoPersistencia);
-
-            IRepositorioCompromisso repositorioCompromisso = new RepositorioCompromissoOrm(contextoPersistencia);
-
-            // Refatorado: var servicoContato = new ServicoContato(repositorioContato, contextoPersistencia);
-
-            servicoCompromisso = new ServicoCompromisso(repositorioCompromisso, contextoPersistencia);
-
-            var automapperconfig = new MapperConfiguration(opt =>
-            {
-                opt.CreateMap<Compromisso, ListarCompromissoViewModel>()
-                .ForMember(destino => destino.Data, opt => opt.MapFrom(origem => origem.Data.ToShortDateString()))
-                .ForMember(destino => destino.HoraInicio, opt => opt.MapFrom(origem => origem.HoraInicio.ToString(@"hh\:mm")))
-                .ForMember(destino => destino.HoraTermino, opt => opt.MapFrom(origem => origem.HoraTermino.ToString(@"hh\:mm")));
-
-                opt.CreateMap<Compromisso, VisualizarCompromissoViewModel>()
-                .ForMember(destino => destino.Data, opt => opt.MapFrom(origem => origem.Data.ToShortDateString()))
-                .ForMember(destino => destino.HoraInicio, opt => opt.MapFrom(origem => origem.HoraInicio.ToString(@"hh\:mm")))
-                .ForMember(destino => destino.HoraTermino, opt => opt.MapFrom(origem => origem.HoraTermino.ToString(@"hh\:mm")));
-
-                opt.CreateMap<InserirCompromissoViewModel, Compromisso>();
-                opt.CreateMap<EditarCompromissoViewModel, Compromisso>();
-            });
-
-            mapeador = automapperconfig.CreateMapper();
+            this.servicoCompromisso = servicoCompromisso;
+            this.mapeador = mapeador;
+                       
         }
 
         [HttpGet]
